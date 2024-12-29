@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.inputBox {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+
+}
+
+.inputBox input {
+  background-color: #27272A;
+  border-radius: 5px;
+  flex: 1;
+  padding: 10px;
+  background-color: transparent;
+  border: 1px solid #27272A;
+  outline: 0;
+  color: #fff;
+  font-size: 14px;
+
+}
+
+.inputBox textarea {
+  border-radius: 5px;
+  flex: 1;
+  padding: 10px;
+  background-color: transparent;
+  border: 0;
+  outline: 0;
+  color: #fff;
+  font-size: 14px;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.btnBlue {
+  padding: 10px;
+  background-color: #1D4ED8;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 0;
+}

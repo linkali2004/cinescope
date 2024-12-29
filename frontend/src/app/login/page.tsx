@@ -1,0 +1,115 @@
+"use client";
+import Link from 'next/link';
+import React, { useState } from 'react';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import{ useRouter} from "next/navigation";
+
+const signupSchema = z.object({
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long." }),
+  pwd: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long." })
+    .regex(/\d/, { message: "Password must include at least one number." }),
+});
+
+export default function Page() {
+  const [username, setUsername] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [errors, setErrors] = useState({ username: "", email: "", pwd: "" });
+  const router = useRouter();
+
+  const validateField = (field: string, value: string) => {
+    const result = signupSchema.safeParse({ [field]: value });
+    if (result.success || !value) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    } else {
+      const errorMessage = result.error.errors.find((err) => err.path[0] === field)?.message || "";
+      setErrors((prev) => ({ ...prev, [field]: errorMessage }));
+    }
+  };
+
+  const handleBlur = (field: string, value: string) => {
+    validateField(field, value);
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const validation = signupSchema.safeParse({ username, pwd });
+    if (!validation.success) return;
+   console.log({ username, pwd });
+       const payload = {
+           username,
+           password:pwd,
+       }
+   
+       try{
+           const res = await fetch("http://localhost:8000/login", {
+               method: "POST",
+               headers: {
+                 "Content-Type": "application/json",
+               },
+               body: JSON.stringify(payload),
+               credentials: "include",
+             });
+             if(res.ok)
+             {
+               toast.success("Successfully Logged In")
+               router.push("/")
+             }
+             else{
+               toast.error("Login Failed")
+             }
+           console.log(res);
+       }catch(e){
+           console.log(e);
+       }
+  };
+
+  const isFormInvalid = Object.values(errors).some((err) => err) || !username  || !pwd;
+
+  return (
+    <>
+      <div className="container w-screen min-h-screen flex flex-col items-center justify-center bg-[#09090B] text-white">
+        <div className="w-[23vw] bg-[#18181B] h-[auto] flex flex-col p-[20px] shadow-black/50 rounded-lg">
+          <h3 className="text-2xl mb-6">Login</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="inputBox">
+              <input
+                onChange={(e) => setUsername(e.target.value)}
+                onBlur={(e) => handleBlur("username", e.target.value)}
+                value={username}
+                type="text"
+                placeholder="Username"
+              />
+              {errors.username && <small className="text-red-500 font-[10px]">{errors.username}</small>}
+            </div>
+
+            <div className="inputBox mt-3">
+              <input
+                onChange={(e) => setPwd(e.target.value)}
+                onBlur={(e) => handleBlur("pwd", e.target.value)}
+                value={pwd}
+                type="password"
+                placeholder="Password"
+              />
+              {errors.pwd && <p className="text-red-500 text-sm">{errors.pwd}</p>}
+            </div>
+
+            <p className='mb-1 mt-2 text-[14px]'>Don't have an account <Link className='text-[#1D4ED8]' href="/register">Sign Up</Link></p>
+
+            <button
+              type="submit"
+              disabled={isFormInvalid}
+              className={`btnBlue w-full text-[15px] ${isFormInvalid ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Log in
+            </button>
+          </form>
+        </div>
+      </div>
+    </>
+  );
+}
